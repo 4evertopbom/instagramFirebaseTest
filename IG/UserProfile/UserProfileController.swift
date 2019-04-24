@@ -9,10 +9,18 @@ import UIKit
 import Firebase
 
 let ref : DatabaseReference = Database.database().reference()
-class UserProfileController: UICollectionViewController, UICollectionViewDelegateFlowLayout, UserProfileDelegate {
+class UserProfileController: UICollectionViewController, UICollectionViewDelegateFlowLayout, UserProfileDelegate,UserPostDelegate {
+    func didtapComment(post: Post) {
+        let commentController = CommentController(collectionViewLayout: UICollectionViewFlowLayout())
+        commentController.post = post
+        
+        navigationController?.pushViewController(commentController, animated: true)
+    }
+    
     var user:User?
     let cellId = "cellId"
     let homepostcellId = "homepostcellId"
+    var selectedPost: Post?
     
     var userID: String?
     
@@ -67,7 +75,7 @@ class UserProfileController: UICollectionViewController, UICollectionViewDelegat
     
      func fetchUser(){
         guard let currentUser = Auth.auth().currentUser else { return }
-        let uid = userID ?? (currentUser.uid )
+        let uid = userID ?? (currentUser.uid)
         FirebaseApp.fetchUserWithUid(uid: uid) { (user) in
             self.user = user
             self.navigationItem.title = self.user?.username
@@ -79,13 +87,22 @@ class UserProfileController: UICollectionViewController, UICollectionViewDelegat
     var posts = [Post]()
     
     fileprivate func fetchOrderPosts(){
+        guard let currentUseruid = Auth.auth().currentUser?.uid else { return }
         guard let uid = self.user?.uid else { return }
         ref.child("posts").child(uid).observe(.childAdded) { (snapshot) in
             guard let dictionary = snapshot.value as? [String:Any] else {return}
             guard let thisUser = self.user else { return }
-            let post = Post(user: thisUser, dictionary: dictionary)
-            self.posts.insert(post, at: 0)
-            self.collectionView.reloadData()
+            var post = Post(user: thisUser, dictionary: dictionary)
+            post.postID = snapshot.key
+            ref.child("like").child(currentUseruid).child(post.postID!).observeSingleEvent(of: .value, with: { (snapshot) in
+                if let value = snapshot.value as? Int, value == 1 {
+                    post.isLike = true
+                } else {
+                    post.isLike = false
+                }
+                self.posts.insert(post, at: 0)
+                self.collectionView.reloadData()
+            })
         }
     }
     // .childAdded and .value have different snapshot.value
@@ -115,6 +132,7 @@ class UserProfileController: UICollectionViewController, UICollectionViewDelegat
         } else {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: homepostcellId, for: indexPath) as! HomePostCell
             cell.post = posts[indexPath.item]
+            cell.userPostDelegate = self
             return cell
         }
         
@@ -150,15 +168,28 @@ class UserProfileController: UICollectionViewController, UICollectionViewDelegat
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
         return CGSize(width: view.frame.width, height: 200)
     }
+    
+    override func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        if isGrid == true {
+            let singlePostController = SinglePostController(collectionViewLayout: UICollectionViewFlowLayout())
+            singlePostController.post = self.posts[indexPath.item]
+            navigationController?.pushViewController(singlePostController, animated: true)
+        }
+    }
 }
 
 extension UserProfileController: UIViewControllerPreviewingDelegate {
     func previewingContext(_ previewingContext: UIViewControllerPreviewing, viewControllerForLocation location: CGPoint) -> UIViewController? {
+        if isGrid == false {
+            return nil
+        }
         guard let indexPath = collectionView.indexPathForItem(at: location), let cell = collectionView.cellForItem(at: indexPath) else { return nil }
         
         let previewVC = PreviewViewController()
         previewVC.post = posts[indexPath.item]
-        previewVC.preferredContentSize = CGSize(width: 0, height: 300)
+        selectedPost = posts[indexPath.item]
+        
+        previewVC.preferredContentSize = CGSize(width: 0, height: 400)
         
         previewingContext.sourceRect = cell.frame
         
@@ -166,6 +197,8 @@ extension UserProfileController: UIViewControllerPreviewingDelegate {
     }
     
     func previewingContext(_ previewingContext: UIViewControllerPreviewing, commit viewControllerToCommit: UIViewController) {
-        
+        let singlePostController = SinglePostController(collectionViewLayout: UICollectionViewFlowLayout())
+        singlePostController.post = selectedPost
+        show(singlePostController, sender: self)
     }
 }

@@ -13,6 +13,10 @@ protocol HomeControllerDelegate: class {
     func didtapLike(cell: HomePostCell)
 }
 
+protocol UserPostDelegate {
+    func didtapComment(post: Post)
+}
+
 class HomePostCell: UICollectionViewCell {
     
     var post:Post? {
@@ -82,6 +86,8 @@ class HomePostCell: UICollectionViewCell {
         return button
     }()
     
+    
+    
     @objc func handleLike() {
         selectedDelegate?.didtapLike(cell: self)
     }
@@ -94,10 +100,12 @@ class HomePostCell: UICollectionViewCell {
     }()
     
     weak var selectedDelegate: HomeControllerDelegate?
+    var userPostDelegate: UserPostDelegate?
     
     @objc func handleComment(){
         guard let post = self.post else { return }
         selectedDelegate?.didtapComment(post: post)
+        userPostDelegate?.didtapComment(post: post)
     }
     
     let sendMessageButton:UIButton = {

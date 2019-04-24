@@ -20,7 +20,7 @@ class SearchUserCell: UICollectionViewCell {
     
     let profileImageView: ImageCustomView = {
         let iv = ImageCustomView()
-        iv.backgroundColor = .blue
+        iv.backgroundColor = .white
         iv.contentMode = .scaleAspectFill
         iv.clipsToBounds = true
         return iv

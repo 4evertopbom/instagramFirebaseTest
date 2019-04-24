@@ -135,7 +135,6 @@ class HomeController: UICollectionViewController, UICollectionViewDelegateFlowLa
                     self.collectionView.reloadData()
                 })
             })
-
         }
     }
     
