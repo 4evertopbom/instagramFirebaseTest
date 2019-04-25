@@ -22,6 +22,10 @@ class UserProfileController: UICollectionViewController, UICollectionViewDelegat
     let homepostcellId = "homepostcellId"
     var selectedPost: Post?
     
+    var numberofPost = 0
+    var numberofFollowing = 0
+    
+    
     var userID: String?
     
     var isGrid = true
@@ -30,7 +34,7 @@ class UserProfileController: UICollectionViewController, UICollectionViewDelegat
         super.viewDidLoad()
         setUpnavigation()
         fetchUser()
-       
+        
         if traitCollection.forceTouchCapability == .available {
             registerForPreviewing(with: self, sourceView: collectionView)
         }
@@ -39,6 +43,7 @@ class UserProfileController: UICollectionViewController, UICollectionViewDelegat
     func setUpnavigation(){
         collectionView.backgroundColor = .white
         navigationItem.rightBarButtonItem = UIBarButtonItem(image: UIImage(named: "gear")?.withRenderingMode(.alwaysOriginal), style: .plain, target: self, action: #selector(handleLogOut))
+        navigationController?.navigationBar.isTranslucent = false
         collectionView.register(UserProfileHeader.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: "headerId")
         collectionView.register(HomePostCell.self, forCellWithReuseIdentifier: homepostcellId)
         collectionView.register(UserProfileCell.self, forCellWithReuseIdentifier: cellId)
@@ -81,11 +86,12 @@ class UserProfileController: UICollectionViewController, UICollectionViewDelegat
             self.navigationItem.title = self.user?.username
             self.collectionView.reloadData()
             self.fetchOrderPosts()
+            self.fetchFollowing()
         }
     }
     
     var posts = [Post]()
-    
+   
     fileprivate func fetchOrderPosts(){
         guard let currentUseruid = Auth.auth().currentUser?.uid else { return }
         guard let uid = self.user?.uid else { return }
@@ -101,6 +107,7 @@ class UserProfileController: UICollectionViewController, UICollectionViewDelegat
                     post.isLike = false
                 }
                 self.posts.insert(post, at: 0)
+                self.numberofPost = self.posts.count
                 self.collectionView.reloadData()
             })
         }
@@ -119,6 +126,13 @@ class UserProfileController: UICollectionViewController, UICollectionViewDelegat
 //            self.collectionView.reloadData()
 //        })
 //    }
+    
+    fileprivate func fetchFollowing() {
+        guard let uid = self.user?.uid else { return }
+        ref.child("Following").child(uid).observe(.childAdded) { (snapshot) in
+            self.numberofFollowing += 1
+        }
+    }
     
     override func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return posts.count
@@ -161,6 +175,8 @@ class UserProfileController: UICollectionViewController, UICollectionViewDelegat
     override func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
         let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: "headerId", for: indexPath) as! UserProfileHeader
         header.user = user
+        header.numberofPost = self.numberofPost
+        header.numberofFollowing = self.numberofFollowing
         header.protocolDelegate = self
         return header
     }

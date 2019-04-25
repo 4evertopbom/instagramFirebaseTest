@@ -27,6 +27,36 @@ class UserProfileHeader: UICollectionViewCell {
         }
     }
     
+    var numberofPost: Int? {
+        didSet {
+            guard let numberofPost = numberofPost else { return }
+            setupPostLabel(with: numberofPost)
+        }
+    }
+    
+    fileprivate func setupPostLabel(with numberofPost: Int) {
+        let attributeText = NSMutableAttributedString(string: "\(numberofPost)\n", attributes: [NSAttributedString.Key.font :UIFont.boldSystemFont(ofSize: 16)])
+        attributeText.append(NSAttributedString(string: "posts", attributes: [NSAttributedString.Key.foregroundColor : UIColor.lightGray, NSAttributedString.Key.font : UIFont.systemFont(ofSize: 14)]))
+        DispatchQueue.main.async {
+            self.postLabel.attributedText = attributeText
+        }
+    }
+    
+    var numberofFollowing: Int? {
+        didSet {
+            guard let numberofFollowing = numberofFollowing else { return }
+            setupFollowingButton(with: numberofFollowing)
+        }
+    }
+    
+    fileprivate func setupFollowingButton(with numberofFollowing: Int){
+        let attributeText = NSMutableAttributedString(string: "\(numberofFollowing)\n", attributes: [NSAttributedString.Key.font :UIFont.boldSystemFont(ofSize: 16)])
+        attributeText.append(NSAttributedString(string: "following", attributes: [NSAttributedString.Key.foregroundColor : UIColor.lightGray, NSAttributedString.Key.font : UIFont.systemFont(ofSize: 14)]))
+        DispatchQueue.main.async {
+            self.followingButton.setAttributedTitle(attributeText, for: .normal)
+        }
+    }
+    
     fileprivate func setUpEditFollowButton(){
         guard let currentUserUid = Auth.auth().currentUser?.uid else { return }
         guard let userId = user?.uid else { return }
@@ -129,9 +159,6 @@ class UserProfileHeader: UICollectionViewCell {
     
     let postLabel: UILabel = {
         let label = UILabel()
-        let attributeText = NSMutableAttributedString(string: "11\n", attributes: [NSAttributedString.Key.font :UIFont.boldSystemFont(ofSize: 16)])
-        attributeText.append(NSAttributedString(string: "posts", attributes: [NSAttributedString.Key.foregroundColor : UIColor.lightGray, NSAttributedString.Key.font : UIFont.systemFont(ofSize: 14)]))
-        label.attributedText = attributeText
         label.textAlignment = .center
         label.numberOfLines = 0
         return label
@@ -149,9 +176,6 @@ class UserProfileHeader: UICollectionViewCell {
     
     let followingButton: UIButton = {
         let button = UIButton()
-        let attributeText = NSMutableAttributedString(string: "0\n", attributes: [NSAttributedString.Key.font :UIFont.boldSystemFont(ofSize: 16)])
-        attributeText.append(NSAttributedString(string: "following", attributes: [NSAttributedString.Key.foregroundColor : UIColor.lightGray, NSAttributedString.Key.font : UIFont.systemFont(ofSize: 14)]))
-        button.setAttributedTitle(attributeText, for: .normal)
         button.titleLabel?.numberOfLines = 0
         button.titleLabel?.textAlignment = .center
         return button

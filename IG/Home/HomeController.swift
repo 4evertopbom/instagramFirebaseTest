@@ -13,7 +13,7 @@ class HomeController: UICollectionViewController, UICollectionViewDelegateFlowLa
     
     let cellId = "cellId"
     
-    var refreshControl = UIRefreshControl()
+   // var refreshControl = UIRefreshControl()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -23,11 +23,10 @@ class HomeController: UICollectionViewController, UICollectionViewDelegateFlowLa
         setupNavigation()
         fetchAllPosts()
         
-        refreshControl.addTarget(self, action: #selector(handleRefresh), for: UIControl.Event.valueChanged)
-        collectionView.addSubview(refreshControl)
+//        refreshControl.addTarget(self, action: #selector(handleRefresh), for: UIControl.Event.valueChanged)
+//        collectionView.addSubview(refreshControl)
         
     }
-    
     fileprivate func setupNavigation(){
         collectionView.backgroundColor = .white
         navigationItem.titleView = UIImageView(image: UIImage(named: "ins"))
@@ -35,6 +34,7 @@ class HomeController: UICollectionViewController, UICollectionViewDelegateFlowLa
         collectionView.alwaysBounceVertical = true
         navigationItem.rightBarButtonItem = UIBarButtonItem(image: UIImage(named: "message")?.withRenderingMode(.alwaysOriginal), style: .plain, target: self, action: nil)
         navigationItem.leftBarButtonItem = UIBarButtonItem(image: UIImage(named: "camera")?.withRenderingMode(.alwaysOriginal), style: .plain, target: self, action: #selector(handleCamera))
+        navigationController?.navigationBar.isTranslucent = false
     }
     
     @objc func handleCamera(){
@@ -116,7 +116,7 @@ class HomeController: UICollectionViewController, UICollectionViewDelegateFlowLa
         
         ref.child("posts").child(user.uid).observeSingleEvent(of: .value) { (snapshot) in
             guard let dictionaries = snapshot.value as? [String:Any] else { return }
-            self.collectionView.refreshControl?.endRefreshing()
+           // self.collectionView.refreshControl?.endRefreshing()
             dictionaries.forEach({ (key, value) in
                // print(key)
                 guard let dictionary = value as? [String:Any] else { return }
@@ -149,5 +149,13 @@ class HomeController: UICollectionViewController, UICollectionViewDelegateFlowLa
         var height:CGFloat = 8 + 40 + 8 + 50 + 60
         height += view.frame.width
         return CGSize(width: view.frame.width, height: height)
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumLineSpacingForSectionAt section: Int) -> CGFloat {
+        return 1
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumInteritemSpacingForSectionAt section: Int) -> CGFloat {
+        return 1
     }
 }

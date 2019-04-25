@@ -38,6 +38,7 @@ class PreviewViewController: UIViewController {
         return [item1, item2]
     }
     
+    
     let profileImageView: ImageCustomView = {
         let iv = ImageCustomView()
         iv.contentMode = .scaleAspectFill

@@ -132,9 +132,8 @@ class HomePostCell: UICollectionViewCell {
         userProfileImageView.layer.cornerRadius = 20
         postImage.anchor(top: userProfileImageView.bottomAnchor, paddingtop: 8, left: leftAnchor, paddingleft: 0, right: rightAnchor, paddingright: 0, bot: nil, botpadding: 0, height: 0, width: 0)
         postImage.heightAnchor.constraint(equalTo: widthAnchor, multiplier: 1).isActive = true
-        userNameLabel.anchor(top: topAnchor, paddingtop: 0, left: userProfileImageView.rightAnchor, paddingleft: 8, right: moreOptionsButton.leftAnchor, paddingright: 0, bot: postImage.topAnchor, botpadding: 0, height: 0, width: 0)
         moreOptionsButton.anchor(top: topAnchor, paddingtop: 0, left: nil, paddingleft: 0, right: rightAnchor, paddingright: 0, bot: postImage.topAnchor, botpadding: 0, height: 0, width: 44)
-        
+        userNameLabel.anchor(top: topAnchor, paddingtop: 0, left: userProfileImageView.rightAnchor, paddingleft: 8, right: moreOptionsButton.leftAnchor, paddingright: 0, bot: postImage.topAnchor, botpadding: 0, height: 0, width: 0)
         
         setupActionButtons()
         
